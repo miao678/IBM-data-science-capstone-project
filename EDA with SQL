@@ -1,0 +1,20 @@
+!pip install sqlalchemy==1.3.9
+%load_ext sql
+import csv, sqlite3
+
+con = sqlite3.connect("my_data1.db")
+cur = con.cursor()
+!pip install -q pandas==1.1.5
+%sql sqlite:///my_data1.db
+import pandas as pd
+df = pd.read_csv("https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBM-DS0321EN-SkillsNetwork/labs/module_2/data/Spacex.csv")
+df.to_sql("SPACEXTBL", con, if_exists='replace', index=False,method="multi")
+%sql create table SPACEXTABLE as select * from SPACEXTBL where Date is not null
+%sql select distinct launch_site from SPACEXTABLE
+%sql select launch_site from SPACEXTABLE where launch_site like 'CCA%' limit 5
+%sql select sum(PAYLOAD_MASS__KG_) from SPACEXTABLE where customer='NASA (CRS)'
+%sql select avg(PAYLOAD_MASS__KG_) from SPACEXTABLE where booster_version='F9 v1.1'
+%sql select min(date) from SPACEXTABLE where landing_outcome='Success (ground pad)'
+%sql select payload from SPACEXTABLE where landing_outcome='Success (drone ship)' and PAYLOAD_MASS__KG_ between 4000 and 6000
+%sql select landing_outcome, count(landing_outcome) from SPACEXTABLE group by Landing_outcome
+%sql select payload from SPACEXTABLE where PAYLOAD_MASS__KG_=(SELECT max(PAYLOAD_MASS__KG_) from SPACEXTABLE)
